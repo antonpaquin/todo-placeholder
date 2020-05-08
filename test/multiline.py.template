@@ -1,0 +1,11 @@
+import todo
+
+placeholder = todo.PlaceholderMultiline()
+
+x = 1
+y = -1
+print(x, y)
+placeholder.incr_xy
+print(x, y)
+placeholder.incr_xy
+print(x, y)

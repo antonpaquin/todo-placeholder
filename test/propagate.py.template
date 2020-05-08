@@ -1,0 +1,7 @@
+import todo
+
+import test_module
+
+placeholder = todo.PlaceholderExpression()
+
+test_module.foo(placeholder)
