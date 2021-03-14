@@ -8,7 +8,7 @@ with open(path.join(root_dir, 'README.md'), 'r') as in_f:
 
 setup(
     name='todo-placeholder',
-    version='2.0.0',
+    version='2.0.1',
     description='Use a terminal session to lazily write python source code',
     packages=find_packages(),
     long_description=long_description,
