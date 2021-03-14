@@ -1,4 +1,7 @@
 from todo.placeholder import (
-    Placeholder, PlaceholderExpression, PlaceholderStatement, 
-    PlaceholderMultiline
+    set_placeholder,
+    Placeholder,
+    ExpressionPlaceholder,
+    StatementPlaceholder,
+    MultilinePlaceholder,
 )

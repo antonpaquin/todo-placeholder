@@ -1,16 +1,15 @@
 import todo
 
-placeholder = todo.ExpressionPlaceholder()
-
 print('Test case: fill "x + 1"')
 
 x = 1
-if placeholder.y != 2:
+if todo.set_placeholder('x') != 2:
     print('No, set y to x + 1')
 
 x = 2
-if placeholder.y == 3:
+if todo.set_placeholder('x') == 3:
     print('Good!')
 else:
     print('y is not x + 1')
     print('Instead, y is {}'.format(placeholder.y))
+

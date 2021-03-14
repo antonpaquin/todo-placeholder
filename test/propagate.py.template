@@ -2,6 +2,6 @@ import todo
 
 import test_module
 
-placeholder = todo.PlaceholderExpression()
+placeholder = todo.ExpressionPlaceholder()
 
 test_module.foo(placeholder)

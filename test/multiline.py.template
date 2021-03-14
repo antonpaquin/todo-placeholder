@@ -1,11 +1,19 @@
 import todo
 
-placeholder = todo.PlaceholderMultiline()
+
+placeholder = todo.MultilinePlaceholder()
+
+print('fill "x = x + 1, y = y - 1"')
 
 x = 1
 y = -1
 print(x, y)
 placeholder.incr_xy
+assert x == 2
+assert y == -2
 print(x, y)
 placeholder.incr_xy
+assert x == 3
+assert y == -3
 print(x, y)
+print('Good!')

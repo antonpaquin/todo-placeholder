@@ -1,0 +1,11 @@
+import todo
+import requests
+
+def get_data(url):
+    r = requests.get(url)
+    # How do I get the response code here? TODO via placeholder
+    if todo.set_placeholder('http_code') != 200:
+        raise RuntimeError(f'Error: server responded with error code {todo.set_placeholder("http_code")}')
+    return r.text
+
+get_data('http://www.example.com/probably_404')

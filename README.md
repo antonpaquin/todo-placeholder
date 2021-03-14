@@ -22,7 +22,7 @@ get the value.
 (Optional) When you're done with your session, the placeholder in your code is
 replaced with expression from your terminal session.
 
-THIS TOOL CAN EDIT YOUR SOURCE CODE. KEEP BACKUPS.
+THIS TOOL CAN EDIT YOUR SOURCE CODE. KEEP BACKUPS. I hear `git` is pretty nice.
 
 ### wtf
 
@@ -33,10 +33,9 @@ yeah
 Say we have `my_program.py`:
 
 ```
-from todo import Placeholder
-placeholder = Placeholder()
+import todo
 
-print(placeholder.some_string)
+print(todo.set_placeholder('some_string'))
 ```
 
 Run it with `python my_program.py` and you'll enter an interactive session.
@@ -63,18 +62,20 @@ From here, you should fill in the value of `some_string`
 now exiting InteractiveConsole...
 ```
 
-`my_program.py` will continue execution, except `some_string` is replaced with
-the expression 'hello world!'.
+`my_program.py` will continue execution, except the placeholder call to 
+`some_string` is replaced with the expression 'hello world!'.
 
 Note: the *expression*, not the *value* of the expression. You can use 
-`placeholder.some_string` later and the same expression will be re-evaluated in 
-whatever context it was accessed from.
+`set_placeholder('some_string')` later and the same expression will be 
+re-evaluated in whatever context it was accessed from.
+
+It's as if you ran a find+replace job with the last expression you wrote in
+your terminal session.
 
 When the program completes, you can check `my_program.py` again:
 
 ```
-from todo import Placeholder
-placeholder = Placeholder()
+import todo
 
 print('hello world!')
 ```
@@ -92,16 +93,14 @@ This `my_program.py` is a toy example, but it would work the same in a larger
 program:
 
 ```
-from todo import Placeholder
+import todo
 import requests
-
-placeholder = Placeholder()
 
 def get_data(url):
     r = requests.get(url)
     # How do I get the response code here? TODO via placeholder
-    if placeholder.http_code != 200:
-        raise RuntimeError(f'Error: server responded with error code {placeholder.http_code}')
+    if todo.set_placeholder('http_code') != 200:
+        raise RuntimeError(f'Error: server responded with error code {todo.set_placeholder("http_code")}')
     return r.text
 
 get_data('http://www.example.com/probably_404')
@@ -139,10 +138,9 @@ RuntimeError: Error: server responded with error code 404
 And if I check `my_program.py` again, the expression has been filled in
 
 ```
-from todo import Placeholder
+import todo
 import requests
 
-placeholder = Placeholder()
 
 def get_data(url):
     r = requests.get(url)
@@ -153,17 +151,91 @@ def get_data(url):
 get_data('http://www.example.com/probably_404')
 ```
 
-### Other Placeholders
+### set_placeholder
 
-#### PlaceholderExpression
+`set_placeholder` is the simplest way of entering a placeholder context.
 
-`todo.Placeholder` is an alias for `todo.PlaceholderExpression`. This is the
-simplest placeholder: it evaluates a single expression and does not modify the
-local environment beyond the value of that expression.
+The minimum useful context is just a bare call to the function:
 
-#### PlaceholderStatement
+```
+import todo
+todo.set_placeholder()
+```
 
-`todo.PlaceholderStatement` allows for a single python statement, which can
+More interesting is allowing your placeholder-filled expressions to be re-used
+with the "key" argument:
+```
+import todo
+x = todo.set_placeholder('foo')
+...
+print(todo.set_placeholder('foo'))
+```
+
+In this case, you'll be prompted to fill the first instance of `foo`, but the
+second will re-use the expression you entered for the first.
+
+Note that if you pass a key like this, it should be a constant string in order
+for the rewriter to work properly.
+
+Instead of just filling in expressions, you can also use a call to fill in a 
+statement or even multiple statements, with the `replace_mode` parameter. 
+
+```
+import todo
+todo.set_placeholder('foo', replace_mode='expression')  # default
+todo.set_placeholder('foo', replace_mode='statement')
+todo.set_placeholder('foo', replace_mode='multiline')
+```
+
+Filled expressions are scoped to the replace mode, so this example would 
+trigger three terminal sessions to fill in three different instances of `foo`.
+
+See the [docs for `set_placeholder`](https://github.com/antonpaquin/todo-placeholder/blob/master/todo/placeholder.py#L404) 
+for more advanced usage.
+
+### Placeholder Objects
+
+For more control over the placeholder sessions, you can use a placeholder
+object instead of directly calling `set_placeholder`.
+
+These are:
+- `todo.Placeholder` (alias for `ExpressionPlaceholder`)
+- `todo.ExpressionPlaceholder` 
+- `todo.StatementPlaceholder`
+- `todo.MultilinePlaceholder`
+
+Example:
+
+```
+import todo
+
+print(todo.set_placeholder('some_string'))
+```
+
+Is equivalent to 
+
+```
+import todo
+placeholder = todo.Placeholder()
+
+print(placeholder.some_string)
+```
+
+A placeholder object is used through its attributes, and is configured when the
+object is created.
+
+All placeholder objects take the options `rewrite_source` and 
+`allow_propagation`.
+See [parameters](#parameters) for more information.
+
+#### ExpressionPlaceholder
+
+This is the simplest placeholder: it evaluates a single expression and does not
+modify the local environment beyond the value of that expression.
+
+#### StatementPlaceholder
+
+`todo.StatementPlaceholder` allows for a single python statement, which can
 be used to do things like assign to a variable.
 
 Example:
@@ -171,7 +243,7 @@ Example:
 ```
 import todo
 
-placeholder = todo.PlaceholderStatement()
+placeholder = todo.StatementPlaceholder()
 
 x = 1
 print(x)
@@ -199,7 +271,7 @@ now exiting InteractiveConsole...
 ```
 import todo
 
-placeholder = todo.PlaceholderStatement()
+placeholder = todo.StatementPlaceholder()
 
 x = 1
 print(x)
@@ -209,9 +281,9 @@ x += 1
 print(x)
 ```
 
-#### PlaceholderMultiline
+#### MultilinePlaceholder
 
-`todo.PlaceholderMultiline` allows for replacing a placeholder with many lines
+`todo.MultilinePlaceholder` allows for replacing a placeholder with many lines
 of input.
 
 To use this, the placeholder should be the only expression on the line where it
@@ -223,7 +295,7 @@ Example:
 ```
 import todo
 
-placeholder = todo.PlaceholderMultiline()
+placeholder = todo.MultilinePlaceholder()
 
 x = 1
 y = -1
@@ -258,7 +330,7 @@ now exiting InteractiveConsole...
 ```
 import todo
 
-placeholder = todo.PlaceholderMultiline()
+placeholder = todo.MultilinePlaceholder()
 
 x = 1
 y = -1
@@ -291,11 +363,14 @@ To enable editing other files, pass `allow_propagation=True`.
 
 ### Caveats
 
-`Placeholder` works by scanning your code for an accessor of the form 
+`Placeholder` objects work by scanning your code for an accessor of the form 
 `placeholder_var.some_key`. If you access it in an unusual way -- say, 
 `__getattribute__`, it won't be able to find the item it should replace.
 
-Furthermore, it can't tell the difference between a "code" accessor and a 
+`set_placeholder` scans for a call to that method with some constant key 
+argument, or else an "anonymous" call with no key.
+
+The rewriter can't tell the difference between a "code" accessor and a 
 "non-code" accessor. So if you have something like 
 
 ```
@@ -305,5 +380,7 @@ print('placeholder.key = {}'.format(placeholder.key))
 Both instances of "placeholder.key" will be replaced in that line, even though
 only one of them is the actual access point.
 
-Because of how placeholder internals work, your keys cannot start with an
-underscore '_'.
+Because of how placeholder internals work, keys for Placeholder objects cannot 
+start with an underscore '_'.
+
+If your arrow keys aren't working, try `import readline`.
