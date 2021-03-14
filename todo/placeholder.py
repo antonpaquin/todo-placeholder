@@ -517,8 +517,6 @@ def set_placeholder(
     elif not isinstance(key, PlaceholderAccessor):
         raise ValueError('Invalid key {} of type {}'.format(key, type(key)))
 
-    frame = _frame
-
     frame_vars = get_frame_vars(frame)
     fill = session.get_fill(key, frame_vars)
     frame_vars = get_frame_vars(frame)
